@@ -42,4 +42,30 @@ and want them to show up as distinct, readable rows on the dashboard, set
 This only changes what your own machine reports — everyone else's events are
 unaffected.
 
+### Separate accounts (independent quotas)
+By default the dashboard treats everyone's Claude Code entries as one shared
+pool with one shared 5-hour limit — right for a team on one account. If
+instead you (or some subset of people) each have your **own separate**
+Claude account with its own separate limit, pooling those together produces
+a meaningless combined "share %" and capacity bar. Tag those entries with
+`USAGE_TRACKER_ACCOUNT` and the dashboard gives each account its own card,
+with its own 5h windows and its own self-calibrated ceiling — never summed
+with anyone else's:
+
+```json
+{
+  "hooks": {
+    "SessionEnd": [
+      { "hooks": [{ "type": "command", "command": "USAGE_TRACKER_USER=\"Claude Code-mac-air\" USAGE_TRACKER_ACCOUNT=\"mac-air\" node ~/.usage-tracker/trigger.js" }] }
+    ]
+  }
+}
+```
+
+Rows without this tag keep behaving exactly as before (one shared pool), so
+existing team setups are unaffected. This also works per-tool: e.g. keep
+Codex shared across the team while splitting Claude Code into separate
+per-person accounts — just set `USAGE_TRACKER_ACCOUNT` only in the Claude
+Code hook.
+
 [Cloudlfare worker URL](https://usage-tracker-worker.omer-aj.workers.dev)
