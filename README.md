@@ -23,4 +23,23 @@ If you use Codex, open it once afterward and run `/hooks` to trust the new hook.
 
 Dashboard: https://omerAJ.github.io/usage-tracker/
 
+### Custom user label
+By default each event is tagged with `os.userInfo().username` (the OS account
+running the hook). If you use multiple machines under one Claude/Codex account
+and want them to show up as distinct, readable rows on the dashboard, set
+`USAGE_TRACKER_USER` in the hook command instead of editing any code:
+
+```json
+{
+  "hooks": {
+    "SessionEnd": [
+      { "hooks": [{ "type": "command", "command": "USAGE_TRACKER_USER=\"Claude Code-mac-air\" node ~/.usage-tracker/trigger.js" }] }
+    ]
+  }
+}
+```
+
+This only changes what your own machine reports — everyone else's events are
+unaffected.
+
 [Cloudlfare worker URL](https://usage-tracker-worker.omer-aj.workers.dev)

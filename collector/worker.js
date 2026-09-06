@@ -19,7 +19,7 @@ async function main() {
   const b = latestBlock();
   if (!b) return;
   const payload = {
-    user: os.userInfo().username,
+    user: process.env.USAGE_TRACKER_USER || os.userInfo().username,
     blockId: b.id, // stable per 5-hour block → server overwrites, no dupes
     startTime: b.startTime,
     endTime: b.endTime,
