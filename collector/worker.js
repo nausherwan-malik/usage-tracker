@@ -19,7 +19,14 @@ async function main() {
   const b = latestBlock();
   if (!b) return;
   const payload = {
-    user: os.userInfo().username,
+    user: process.env.USAGE_TRACKER_USER || os.userInfo().username,
+    // Tags this entry as belonging to an independent quota pool (e.g. a
+    // personal account, separate from the team's shared one) so the
+    // dashboard gives it its own capacity bar instead of pooling its cost
+    // into a shared-account total it has nothing to do with. Leave unset to
+    // keep the default: one shared pool across everyone (a team on one
+    // account).
+    account: process.env.USAGE_TRACKER_ACCOUNT || undefined,
     blockId: b.id, // stable per 5-hour block → server overwrites, no dupes
     startTime: b.startTime,
     endTime: b.endTime,

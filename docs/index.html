@@ -96,9 +96,26 @@
         ];
         let html = "";
         for (const g of groups) {
-          const sessions = summarize(g.rows, { limitUsd: SESSION_COST_LIMIT_USD, maxSessions: MAX_SESSIONS });
-          if (sessions.length === 0) continue;
-          html += `<h3 class="grouphead">${g.label}</h3>` + sessions.map(renderSession).join("");
+          // Further split by `account`: untagged rows are one shared pool (a
+          // team on one account — today's default), but a row tagged with
+          // USAGE_TRACKER_ACCOUNT belongs to its own independent quota and
+          // must never be summed into someone else's capacity bar. Each
+          // account gets summarized (and its ceiling auto-calibrated) on its
+          // own rows only.
+          const byAccount = new Map();
+          for (const row of g.rows) {
+            const key = row.account || "";
+            if (!byAccount.has(key)) byAccount.set(key, []);
+            byAccount.get(key).push(row);
+          }
+          const accountKeys = [...byAccount.keys()].sort((a, b) => a.localeCompare(b));
+          const multiAccount = accountKeys.length > 1;
+          for (const key of accountKeys) {
+            const sessions = summarize(byAccount.get(key), { limitUsd: SESSION_COST_LIMIT_USD, maxSessions: MAX_SESSIONS });
+            if (sessions.length === 0) continue;
+            const heading = multiAccount && key ? `${g.label} · ${key}` : g.label;
+            html += `<h3 class="grouphead">${heading}</h3>` + sessions.map(renderSession).join("");
+          }
         }
         if (!html) { app.textContent = "No usage recorded yet."; return; }
         app.className = "";

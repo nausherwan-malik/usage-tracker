@@ -19,7 +19,9 @@ async function main() {
   const s = latestSession();
   if (!s) return;
   const payload = {
-    user: os.userInfo().username,
+    user: process.env.USAGE_TRACKER_USER || os.userInfo().username,
+    // See worker.js — unset by default so Codex stays one shared pool.
+    account: process.env.USAGE_TRACKER_ACCOUNT || undefined,
     source: "codex",
     blockId: `codex:${s.sessionId}`, // stable per session, prefixed so it won't collide with Claude blocks
     startTime: s.lastActivity, // codex sessions report no start; only lastActivity
